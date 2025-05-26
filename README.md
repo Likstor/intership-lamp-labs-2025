@@ -3,6 +3,7 @@
 
 ### Запуск
 Для запуска сервиса выполните один из скриптов в папке `deployment`:
+
 **Linux/macOS:**
 ```bash
 ./deployment/deploy.sh
