@@ -30,7 +30,7 @@ func main() {
 	flag.StringVar(&migrationsTable, "migrations-table", "", "")
 	flag.Parse()
 
-	migration, err := migrate.New("file://"+migrationsPath, fmt.Sprintf("postgres://%s?x-migrations-table=%s&sslmode=enable", storageURL, migrationsTable))
+	migration, err := migrate.New("file://"+migrationsPath, fmt.Sprintf("postgres://%s?x-migrations-table=%s&sslmode=disable", storageURL, migrationsTable))
 	if err != nil {
 		logs.Error(
 			context.Background(),

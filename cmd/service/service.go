@@ -8,9 +8,13 @@ import (
 	"sync"
 	"syscall"
 
+	"service/internal/delivery/http/v1/handlers"
 	"service/internal/delivery/http/v1/middlewares"
+	"service/internal/infrastructure/db/postgres"
 	"service/internal/pkg/config"
 	"service/internal/pkg/logs"
+	"service/internal/pkg/pgclient"
+	"service/internal/usecase"
 )
 
 const (
@@ -42,9 +46,44 @@ func main() {
 		return
 	}
 
+	dbClientCfg := pgclient.Config{
+		Username: cfg.Storage.User,
+		Password: cfg.Storage.Password,
+		Host:     "postgres",
+		Port:     "5432",
+		Database: cfg.Storage.Name,
+	}
+
+	client, err := pgclient.NewClient(context.Background(), 5, dbClientCfg)
+	if err != nil {
+		logs.Error(
+			context.Background(),
+			err.Error(),
+			op,
+		)
+
+		return
+	}
+	defer client.Close()
+
 	mainMux := http.NewServeMux()
 
-	wrappedMainMux := middleware.Logger(mainMux)                   // 3
+	notesRepository := postgres.NotesRepository{
+		Pool: client,
+	}
+
+	notesUseCase := usecase.NotesService{
+		Repository: notesRepository,
+	}
+
+	notesMux := handlers.NotesHandler{
+		UseCase: notesUseCase,
+	}.GetMux()
+
+	mainMux.Handle("/", notesMux)
+
+	wrappedMainMux := middleware.Cors(mainMux)                     // 4
+	wrappedMainMux = middleware.Logger(wrappedMainMux)             // 3
 	wrappedMainMux = middleware.SetupTrace(wrappedMainMux)         // 2
 	wrappedMainMux = middleware.SetupContextValues(wrappedMainMux) // 1
 
