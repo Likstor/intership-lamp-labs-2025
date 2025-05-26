@@ -6,12 +6,12 @@
 
 **Linux/macOS:**
 ```bash
-./deployment/deploy.sh
+./deploy.sh
 ```
 
 **Windows (PowerShell):**
 ```powershell
-.\deployment\deploy.ps1
+.\deploy.ps1
 ```
 
 ## API
