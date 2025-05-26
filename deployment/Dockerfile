@@ -14,4 +14,7 @@ RUN GOOS=linux go build -o /service ./cmd/service/service.go
 COPY deployment/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
 
+RUN sed -i 's/\r$//' /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
