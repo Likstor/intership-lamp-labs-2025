@@ -28,7 +28,7 @@ func (ns NotesRepository) Get(ctx context.Context, criteria *cr.Criteria) ([]ent
 	sql := queryNoteGet
 
 	if criteria != nil {
-		sql = cr.Build(queryNoteGet, criteria, 1, "$%d")
+		sql = criteria.Build(queryNoteGet, 1, "$%d")
 	}
 	
 	rows, err := ns.Pool.Query(ctx, sql)

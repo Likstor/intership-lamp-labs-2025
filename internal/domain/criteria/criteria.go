@@ -1,6 +1,9 @@
 package criteria
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Operator string
 
@@ -26,4 +29,19 @@ type SimpleCondition struct {
 
 func (sc *SimpleCondition) ToSQL() string {
 	return fmt.Sprintf("WHERE %s %s %v", sc.Field, sc.Operator, sc.Value)
+}
+
+func (cr Criteria) Build(query string, startFrom uint64, valueOperator string) string {
+	sql := cr.Condition.ToSQL()
+
+	fields := strings.Fields(sql)
+
+	for i, f := range fields {
+		if f == "?" {
+			fields[i] = fmt.Sprintf(valueOperator, startFrom)
+			startFrom++
+		}
+	}
+
+	return fmt.Sprintf("%s\n%s", query, strings.Join(fields, " "))
 }
